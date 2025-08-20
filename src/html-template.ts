@@ -9,7 +9,7 @@ export interface TemplateRenderOptions {
   inputPath: string;
   backgroundColor: string;
   devicePixelRatio: number;
-  modelViewerArgs?: AttributesObject;
+  modelViewerArgs?: AttributesObject[];
 }
 
 function toHTMLAttributeString(args: AttributesObject | undefined) {
@@ -32,21 +32,23 @@ const errorMessagesForAttributeKey = {
 
 function validateCustomAttributes(
   defaultAttributes: AttributesObject,
-  customAttributes: AttributesObject | undefined,
+  customAttributesArray: AttributesObject[] | undefined,
 ) {
-  if (!customAttributes) {
+  if (!customAttributesArray) {
     return;
   }
 
-  Object.keys(defaultAttributes).forEach((defaultAttributeKey) => {
-    if (customAttributes[defaultAttributeKey] !== undefined) {
-      if (errorMessagesForAttributeKey[defaultAttributeKey]) {
-        throw new Error(errorMessagesForAttributeKey[defaultAttributeKey]);
-      }
+  for (const customAttributes of customAttributesArray) {
+    Object.keys(defaultAttributes).forEach((defaultAttributeKey) => {
+      if (customAttributes[defaultAttributeKey] !== undefined) {
+        if (errorMessagesForAttributeKey[defaultAttributeKey]) {
+          throw new Error(errorMessagesForAttributeKey[defaultAttributeKey]);
+        }
 
-      throw new Error(`You cannot pass \`${defaultAttributeKey}\``);
-    }
-  });
+        throw new Error(`You cannot pass \`${defaultAttributeKey}\``);
+      }
+    });
+  }
 }
 
 export function htmlTemplate({
@@ -68,7 +70,6 @@ export function htmlTemplate({
   validateCustomAttributes(defaultAttributes, modelViewerArgs);
 
   const defaultAttributesString = toHTMLAttributeString(defaultAttributes);
-  const modelViewerArgsString = toHTMLAttributeString(modelViewerArgs);
 
   return `
     <!DOCTYPE html>
@@ -92,7 +93,6 @@ export function htmlTemplate({
       <body>
         <model-viewer
           ${defaultAttributesString}
-          ${modelViewerArgsString}
         />
       </body>
     </html>

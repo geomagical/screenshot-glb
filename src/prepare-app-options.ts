@@ -20,7 +20,7 @@ export interface Argv {
   color?: string;
   model_viewer_path?: string;
   model_viewer_version?: string;
-  model_viewer_attributes?: string;
+  model_viewer_attributes?: [string];
 }
 
 export interface PrepareAppOptionsArgs {
@@ -60,15 +60,19 @@ export async function prepareAppOptions({
   );
   const defaultBackgroundColor =
     format === 'image/jpeg' ? colors.white : colors.transparent;
-  let modelViewerArgs: {[key: string]: string} = undefined;
+
+  let modelViewerArgs: {[key: string]: string}[] = undefined;
 
   if (model_viewer_attributes) {
-    modelViewerArgs = {};
-
-    const params = new URLSearchParams(model_viewer_attributes);
-    params.forEach((value, key) => {
-      modelViewerArgs[key] = value;
-    });
+    modelViewerArgs = []
+    for (const attrs of model_viewer_attributes) {
+        let args: {[key: string]: string} = {}
+        const params = new URLSearchParams(attrs);
+        params.forEach((value, key) => {
+            args[key] = value;
+        });
+        modelViewerArgs.push(args);
+    }
   }
 
   if (modelViewerVersion && modelViewerPath) {

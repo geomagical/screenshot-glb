@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
 import {performance} from 'perf_hooks';
-import {htmlTemplate, TemplateRenderOptions} from './html-template';
+import {htmlTemplate} from './html-template';
 import {CaptureScreenShotOptions} from './types/CaptureScreenshotOptions';
 import {logError} from './log-error';
 
@@ -8,7 +8,27 @@ const timeDelta = (start, end) => {
   return ((end - start) / 1000).toPrecision(3);
 };
 
-export async function captureScreenshot(options: CaptureScreenShotOptions) {
+function getAllAttributes(element: HTMLElement) {
+  let attrs = {};
+  Object.values(element.attributes).forEach((attribute: Attr) => {
+    attrs[attribute.name] = attribute.value;
+  });
+  return attrs;
+}
+
+function assignAttributes(element: HTMLElement, values: {}) {
+  for (let key in values) {
+    element.setAttribute(key, values[key]);
+  }
+}
+
+function removeAllAttributes(element: HTMLElement): void {
+  Object.values(element.attributes).forEach((attribute: Attr) => {
+    element.removeAttribute(attribute.name);
+  });
+}
+
+export async function captureScreenshots(options: CaptureScreenShotOptions) {
   const browserT0 = performance.now();
   const {
     modelViewerUrl,
@@ -20,6 +40,7 @@ export async function captureScreenshot(options: CaptureScreenShotOptions) {
     timeout,
     devicePixelRatio,
     formatExtension,
+    modelViewerArgs,
   } = options;
   const screenshotTimeoutInSec = timeout / 1000;
 
@@ -128,7 +149,7 @@ export async function captureScreenshot(options: CaptureScreenShotOptions) {
 
   const renderT1 = performance.now();
   console.log(
-    `🖌  Rendering screenshot of model (${timeDelta(renderT0, renderT1)}s)`,
+    `🖌  Rendering screenshots of model (${timeDelta(renderT0, renderT1)}s)`,
   );
 
   if (evaluateError) {
@@ -137,7 +158,8 @@ export async function captureScreenshot(options: CaptureScreenShotOptions) {
     return;
   }
 
-  const screenshotT0 = performance.now();
+  const modelViewer = document.getElementById('snapshot-viewer');
+  const origAttrs = getAllAttributes(modelViewer);
 
   const captureOptions = {
     quality: quality * 100.0,
@@ -150,15 +172,28 @@ export async function captureScreenshot(options: CaptureScreenShotOptions) {
     delete captureOptions.quality;
   }
 
-  const screenshot = await page.screenshot(captureOptions);
+  let index: number = 0;
+  for (const mvArgs of modelViewerArgs || [{}]) {
+    const screenshotT0 = performance.now();
 
-  const screenshotT1 = performance.now();
+    removeAllAttributes(modelViewer);
+    assignAttributes(modelViewer, origAttrs);
+    assignAttributes(modelViewer, mvArgs);
 
-  console.log(
-    `🖼  Captured screenshot (${timeDelta(screenshotT0, screenshotT1)}s)`,
-  );
+    if (mvArgs.length > 1) {
+      let serialOutputPath : string = `${index}_${outputPath}`
+      captureOptions.path = serialOutputPath as `${string}.jpeg` | `${string}.png` | `${string}.webp`
+    }
+
+    await page.screenshot(captureOptions);
+
+    const screenshotT1 = performance.now();
+
+    console.log(
+      `🖼  Captured screenshot (${timeDelta(screenshotT0, screenshotT1)}s)`,
+    );
+    index += 1;
+  }
 
   await browser.close();
-
-  return screenshot;
 }
