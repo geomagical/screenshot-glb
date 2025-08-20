@@ -187,10 +187,9 @@ export async function captureScreenshots(options: CaptureScreenShotOptions) {
     // naming convention to the output path
     if (modelViewerArgs.length > 1) {
       let index_str = String(index).padStart(2,'0')
-      // there has to be a cleaner way to do this.
-      let serialOutputPath = outputPath.replace(/\.png$/, `_${index_str}.png`);
-      serialOutputPath = serialOutputPath.replace(/\.jpeg$/, `_${index_str}.jpeg`);
-      serialOutputPath = serialOutputPath.replace(/\.webp$/, `_${index_str}.webp`);
+      let op = outputPath.split('.')
+      op[op.length - 2] += `_${index_str}`
+      let serialOutputPath = op.join('.')
       captureOptions.path = serialOutputPath as `${string}.jpeg` | `${string}.png` | `${string}.webp`
     }
 
