@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="cli.ts" type="NodeJSConfigurationType" application-parameters="-i $PROJECT_DIR$/test/fixtures/microphone.glb -o $PROJECT_DIR$/test/microphone.png -m camera-orbit=-30deg%2060deg%20m&amp;camera-target=0.1m%20-0.2m%200m -m camera-orbit=-30deg%2030deg%20m&amp;camera-target=0.0m%200.0m%200m" nameIsGenerated="true" path-to-js-file="cli.ts" typescript-loader="bundled" working-dir="$PROJECT_DIR$/src">
+  <configuration default="false" name="cli.ts" type="NodeJSConfigurationType" application-parameters="-i $PROJECT_DIR$/test/fixtures/microphone.glb -o $PROJECT_DIR$/test/microphone.png -m camera-orbit=0deg%2075deg%20105%25 -m camera-orbit=30deg%2075deg%20105%25" nameIsGenerated="true" path-to-js-file="cli.ts" typescript-loader="bundled" working-dir="$PROJECT_DIR$/src">
     <method v="2" />
   </configuration>
 </component>

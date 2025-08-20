@@ -16,12 +16,6 @@ function getAllAttributes(element: HTMLElement) {
   return attrs;
 }
 
-function assignAttributes(element: HTMLElement, values: {}) {
-  for (let key in values) {
-    element.setAttribute(key, values[key]);
-  }
-}
-
 function removeAllAttributes(element: HTMLElement): void {
   Object.values(element.attributes).forEach((attribute: Attr) => {
     element.removeAttribute(attribute.name);
@@ -48,6 +42,7 @@ export async function captureScreenshots(options: CaptureScreenShotOptions) {
   const args = [
     '--no-sandbox',
     '--disable-gpu',
+    '--enable-unsafe-swiftshader',
     '--disable-dev-shm-usage',
     '--disable-setuid-sandbox',
     '--no-zygote',
@@ -158,9 +153,6 @@ export async function captureScreenshots(options: CaptureScreenShotOptions) {
     return;
   }
 
-  const modelViewer = document.getElementById('snapshot-viewer');
-  const origAttrs = getAllAttributes(modelViewer);
-
   const captureOptions = {
     quality: quality * 100.0,
     type: formatExtension as 'jpeg' | 'png' | 'webp',
@@ -173,17 +165,37 @@ export async function captureScreenshots(options: CaptureScreenShotOptions) {
   }
 
   let index: number = 0;
+
   for (const mvArgs of modelViewerArgs || [{}]) {
-    const screenshotT0 = performance.now();
+    if (index > 0) {
+      const updateArgsT0 = performance.now();
 
-    removeAllAttributes(modelViewer);
-    assignAttributes(modelViewer, origAttrs);
-    assignAttributes(modelViewer, mvArgs);
+      await page.evaluate(async (oldArgs: {}, newArgs: {}) => {
+        const modelViewer = document.getElementById('snapshot-viewer');
+        for (let key in oldArgs) {
+          modelViewer.removeAttribute(key);
+        }
+        for (let key in newArgs) {
+          modelViewer.setAttribute(key, newArgs[key]);
+        }
+      }, modelViewerArgs[index - 1], mvArgs);
 
-    if (mvArgs.length > 1) {
-      let serialOutputPath : string = `${index}_${outputPath}`
+      const updateArgsT1 = performance.now();
+
+      console.log(
+        `🖌  update viewer args (${timeDelta(updateArgsT0, updateArgsT1)}s)`,
+      );
+    }
+
+    if (modelViewerArgs.length > 1) {
+      let index_str = String(index).padStart(2,'0')
+      let serialOutputPath = outputPath.replace(/\.png$/, `_${index_str}.png`);
+      serialOutputPath = serialOutputPath.replace(/\.jpeg$/, `_${index_str}.jpeg`);
+      serialOutputPath = serialOutputPath.replace(/\.webp$/, `_${index_str}.webp`);
       captureOptions.path = serialOutputPath as `${string}.jpeg` | `${string}.png` | `${string}.webp`
     }
+
+    const screenshotT0 = performance.now();
 
     await page.screenshot(captureOptions);
 
@@ -192,6 +204,7 @@ export async function captureScreenshots(options: CaptureScreenShotOptions) {
     console.log(
       `🖼  Captured screenshot (${timeDelta(screenshotT0, screenshotT1)}s)`,
     );
+
     index += 1;
   }
 
