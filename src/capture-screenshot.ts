@@ -202,7 +202,7 @@ export async function captureScreenshots(options: CaptureScreenShotOptions) {
     const screenshotT1 = performance.now();
 
     console.log(
-      `🖼  Captured screenshot (${timeDelta(screenshotT0, screenshotT1)}s)`,
+      `🖼  Captured ${captureOptions.path} (${timeDelta(screenshotT0, screenshotT1)}s)`,
     );
 
     index += 1;
