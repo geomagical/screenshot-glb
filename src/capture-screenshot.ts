@@ -8,19 +8,6 @@ const timeDelta = (start, end) => {
   return ((end - start) / 1000).toPrecision(3);
 };
 
-function getAllAttributes(element: HTMLElement) {
-  let attrs = {};
-  Object.values(element.attributes).forEach((attribute: Attr) => {
-    attrs[attribute.name] = attribute.value;
-  });
-  return attrs;
-}
-
-function removeAllAttributes(element: HTMLElement): void {
-  Object.values(element.attributes).forEach((attribute: Attr) => {
-    element.removeAttribute(attribute.name);
-  });
-}
 
 export async function captureScreenshots(options: CaptureScreenShotOptions) {
   const browserT0 = performance.now();
