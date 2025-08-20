@@ -152,8 +152,7 @@ export async function captureScreenshots(options: CaptureScreenShotOptions) {
   }
 
   // for every set of modelViewer args render and screenshot
-  let index: number = 0;
-  for (const mvArgs of modelViewerArgs || [{}]) {
+  for (const [index, mvArgs] of (modelViewerArgs || [{}]).entries()) {
     // the initial page load is done with model viewer attribute set 0
     // for all subsequent screenshots update the attributes
     if (index > 0) {
@@ -204,8 +203,6 @@ export async function captureScreenshots(options: CaptureScreenShotOptions) {
     console.log(
       `🖼  Captured ${captureOptions.path} (${timeDelta(screenshotT0, screenshotT1)}s)`,
     );
-
-    index += 1;
   }
 
   await browser.close();
