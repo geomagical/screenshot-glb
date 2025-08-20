@@ -20,7 +20,7 @@ export interface Argv {
   color?: string;
   model_viewer_path?: string;
   model_viewer_version?: string;
-  model_viewer_attributes?: [string];
+  model_viewer_attributes?: string[];
 }
 
 export interface PrepareAppOptionsArgs {

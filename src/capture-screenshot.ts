@@ -151,18 +151,28 @@ export async function captureScreenshots(options: CaptureScreenShotOptions) {
     delete captureOptions.quality;
   }
 
+  // for every set of modelViewer args render and screenshot
   let index: number = 0;
-
   for (const mvArgs of modelViewerArgs || [{}]) {
+    // the initial page load is done with model viewer attribute set 0
+    // for all subsequent screenshots update the attributes
     if (index > 0) {
       const updateArgsT0 = performance.now();
 
       await page.evaluate(async (oldArgs: {}, newArgs: {}) => {
         const modelViewer = document.getElementById('snapshot-viewer');
+        // unset the old attributes
+        // CLI specified attributes are not allowed to overlap
+        // the required ones set up in the generated html.
+        // this is validated in html-template.ts.
+        // this means the following pair of operations is safe.
         for (let key in oldArgs) {
+          // out with the old
           modelViewer.removeAttribute(key);
         }
+        // apply the new ones
         for (let key in newArgs) {
+          // in with the new
           modelViewer.setAttribute(key, newArgs[key]);
         }
       }, modelViewerArgs[index - 1], mvArgs);
@@ -174,8 +184,11 @@ export async function captureScreenshots(options: CaptureScreenShotOptions) {
       );
     }
 
+    // when there will be multiple screenshots apply a serial
+    // naming convention to the output path
     if (modelViewerArgs.length > 1) {
       let index_str = String(index).padStart(2,'0')
+      // there has to be a cleaner way to do this.
       let serialOutputPath = outputPath.replace(/\.png$/, `_${index_str}.png`);
       serialOutputPath = serialOutputPath.replace(/\.jpeg$/, `_${index_str}.jpeg`);
       serialOutputPath = serialOutputPath.replace(/\.webp$/, `_${index_str}.webp`);
