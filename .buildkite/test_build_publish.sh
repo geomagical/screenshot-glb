@@ -9,8 +9,9 @@ PACKAGE_DIR="${SRC_DIR}/dist"
 cd "${SRC_DIR}"
 
 npm install
-npm test
-npx tsc
+npm run test
+npm run lint
+npm run build
 npm pack
 
 cp -v "${SCRIPT_DIR}/package.npmrc" "${PACKAGE_DIR}/.npmrc"
