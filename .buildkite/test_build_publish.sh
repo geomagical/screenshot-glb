@@ -8,8 +8,8 @@ PACKAGE_DIR="${SRC_DIR}/dist"
 
 cd "${SRC_DIR}"
 
+npm install
 npm test
-
 npx tsc
 npm pack
 
