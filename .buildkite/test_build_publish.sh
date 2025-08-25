@@ -15,15 +15,15 @@ npm run build
 npm pack
 
 cp -v "${SCRIPT_DIR}/package.npmrc" "${PACKAGE_DIR}/.npmrc"
+cp -v "${SRC_DIR}/package.json" "${PACKAGE_DIR}"
 
-case "${BUILDKITE_BRANCH}" in
+case "${BUILDKITE_BRANCH:-}" in
 main) DRY_RUN=;;
 *) DRY_RUN="--dry-run";;
 esac
 
-# TODO: set up secret for CI
-echo npx google-artifactregistry-auth --repo-config="${PACKAGE_DIR}/.npmrc" --credential-config="${HOME}/.npmrc"
+npx google-artifactregistry-auth --repo-config="${PACKAGE_DIR}/.npmrc" --credential-config="${HOME}/.npmrc"
 
 # TODO: get this to actually work
-(cd ${PACKAGE_DIR} && echo npm publish ${DRY_RUN})
+(cd ${PACKAGE_DIR} && npm publish ${DRY_RUN})
 
