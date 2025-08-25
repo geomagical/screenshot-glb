@@ -16,7 +16,9 @@ npm run build
 npm pack
 
 cp -v "${SCRIPT_DIR}/package.npmrc" "${PACKAGE_DIR}/.npmrc"
-cp -v "${SRC_DIR}/package.json" "${PACKAGE_DIR}"
+sed \
+  's:dist/cli.js:cli.js:g'  \
+  "${SRC_DIR}/package.json" > "${PACKAGE_DIR}/package.json"
 
 case "${BUILDKITE_BRANCH:-}" in
 main) DRY_RUN=;;
