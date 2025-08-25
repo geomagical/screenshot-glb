@@ -160,16 +160,14 @@ export async function captureScreenshots(options: CaptureScreenShotOptions) {
 
       await page.evaluate(async (oldArgs: {}, newArgs: {}) => {
         const modelViewer = document.getElementById('snapshot-viewer');
-        // unset the old attributes
         // CLI specified attributes are not allowed to overlap
         // the required ones set up in the generated html.
         // this is validated in html-template.ts.
-        // this means the following pair of operations is safe.
+        // that means the following pair of operations is safe.
         for (let key in oldArgs) {
           // out with the old
           modelViewer.removeAttribute(key);
         }
-        // apply the new ones
         for (let key in newArgs) {
           // in with the new
           modelViewer.setAttribute(key, newArgs[key]);
