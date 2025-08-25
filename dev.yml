@@ -20,5 +20,5 @@ commands:
 
   test: yarn lint && yarn test
 
-open:
-  "My Application": https://screenshot-glb.myshopify.io
+#open:
+#  "My Application": https://screenshot-glb.myshopify.io
