@@ -3,8 +3,8 @@ steps:
   key: test-build-and-publish
   command: |
     .buildkite/test_build_publish.sh
-  artifact_paths:
-    - *.tgz
+#  artifact_paths:
+#    - *.tgz
   plugins:
   - coderanger/k8s#next:
       image: node:24
