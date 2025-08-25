@@ -23,8 +23,9 @@ main) DRY_RUN=;;
 *) DRY_RUN="--dry-run";;
 esac
 
+# create an empty .npmrc (must exist)
+touch "${HOME}/.npmrc"
+# generate the access token from 'ambient credentials' and add auth entry to .npmrc
 npx google-artifactregistry-auth --repo-config="${PACKAGE_DIR}/.npmrc" --credential-config="${HOME}/.npmrc"
 
-# TODO: get this to actually work
 (cd ${PACKAGE_DIR} && npm publish ${DRY_RUN})
-
