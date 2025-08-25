@@ -13,7 +13,7 @@ npm test
 npx tsc
 npm pack
 
-cp -v "${SCRIPT_DIR}/package.nmprc" "${PACKAGE_DIR}/.npmrc"
+cp -v "${SCRIPT_DIR}/package.npmrc" "${PACKAGE_DIR}/.npmrc"
 
 case "${BUILDKITE_BRANCH}" in
 main) DRY_RUN=;;
