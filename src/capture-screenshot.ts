@@ -151,8 +151,10 @@ export async function captureScreenshots(options: CaptureScreenShotOptions) {
     delete captureOptions.quality;
   }
 
+  const effectiveModelViewerArgs = (modelViewerArgs || [{}])
+
   // for every set of modelViewer args render and screenshot
-  for (const [index, mvArgs] of (modelViewerArgs || [{}]).entries()) {
+  for (const [index, mvArgs] of effectiveModelViewerArgs.entries()) {
     // the initial page load is done with model viewer attribute set 0
     // for all subsequent screenshots update the attributes
     if (index > 0) {
@@ -183,7 +185,7 @@ export async function captureScreenshots(options: CaptureScreenShotOptions) {
 
     // when there will be multiple screenshots apply a serial
     // naming convention to the output path
-    if (modelViewerArgs.length > 1) {
+    if (effectiveModelViewerArgs.length > 1) {
       let index_str = String(index).padStart(2,'0')
       let op = outputPath.split('.')
       op[op.length - 2] += `_${index_str}`
