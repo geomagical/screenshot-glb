@@ -131,7 +131,7 @@ export async function captureScreenshots(options: CaptureScreenShotOptions) {
 
   const renderT1 = performance.now();
   console.log(
-    `🖌  Rendering screenshots of model (${timeDelta(renderT0, renderT1)}s)`,
+    `🖌  Rendering screenshot(s) of model (${timeDelta(renderT0, renderT1)}s)`,
   );
 
   if (evaluateError) {

@@ -89,6 +89,7 @@ describe('captureScreenshot', () => {
       args: [
         '--no-sandbox',
         '--disable-gpu',
+        '--enable-unsafe-swiftshader',
         '--disable-dev-shm-usage',
         '--disable-setuid-sandbox',
         '--no-zygote',
@@ -113,6 +114,7 @@ describe('captureScreenshot', () => {
       args: [
         '--no-sandbox',
         '--disable-gpu',
+        '--enable-unsafe-swiftshader',
         '--disable-dev-shm-usage',
         '--disable-setuid-sandbox',
         '--no-zygote',
@@ -141,8 +143,8 @@ describe('captureScreenshot', () => {
     const expectedLogs = [
       '🚀  Launched browser (0.00s)',
       '🗺  Loading template to DOMContentLoaded (0.00s)',
-      '🖌  Rendering screenshot of model (0.00s)',
-      '🖼  Captured screenshot (0.00s)',
+      '🖌  Rendering screenshot(s) of model (0.00s)',
+      '🖼  Captured some/image.jpeg (0.00s)',
     ];
 
     await captureScreenshots({
@@ -160,7 +162,7 @@ describe('captureScreenshot', () => {
     const expectedLogs = [
       '🚀  Launched browser (0.00s)',
       '🗺  Loading template to DOMContentLoaded (0.00s)',
-      '🖌  Rendering screenshot of model (0.00s)',
+      '🖌  Rendering screenshot(s) of model (0.00s)',
       `❌  Evaluate error: ${error}`,
     ];
 
