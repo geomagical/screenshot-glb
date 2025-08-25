@@ -9,6 +9,7 @@ PACKAGE_DIR="${SRC_DIR}/dist"
 cd "${SRC_DIR}"
 
 npm install
+npm run prepare
 npm run test
 npm run lint
 npm run build
