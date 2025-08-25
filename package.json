@@ -6,7 +6,7 @@
   },
   "description": "A fork of Shopify's (Stephan Leroux's) command line utility for taking screenshots of a glTF 2.0 binary file using Google's <model-viewer> component.",
   "bin": {
-    "screenshot-glb": "./dist/cli.js"
+    "screenshot-glb": "dist/cli.js"
   },
   "scripts": {
     "prepare": "yarn build",
