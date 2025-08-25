@@ -147,10 +147,12 @@ describe('htmlTemplate', () => {
     });
 
     it('should pass custom attributes', () => {
-      const modelViewerArgs = {
-        'environment-image': 'https://some-url.hdr',
-        exposure: '3',
-      };
+      const modelViewerArgs = [
+        {
+          'environment-image': 'https://some-url.hdr',
+          exposure: '3',
+        },
+      ];
 
       document.documentElement.innerHTML = htmlTemplate({
         ...defaultOptions,
@@ -159,15 +161,17 @@ describe('htmlTemplate', () => {
 
       const modelViewer = document.querySelector('model-viewer');
 
-      Object.entries(modelViewerArgs).forEach(([attribute, value]) => {
+      Object.entries(modelViewerArgs[0]).forEach(([attribute, value]) => {
         expect(modelViewer.getAttribute(attribute)).toBe(value);
       });
     });
 
     it('cannot overwrite src', () => {
-      const modelViewerArgs = {
-        src: 'new-source.glb',
-      };
+      const modelViewerArgs = [
+        {
+          src: 'new-source.glb',
+        },
+      ];
 
       expect(() =>
         htmlTemplate({
@@ -180,9 +184,11 @@ describe('htmlTemplate', () => {
     });
 
     it('cannot overwrite id', () => {
-      const modelViewerArgs = {
-        id: 'an-id',
-      };
+      const modelViewerArgs = [
+        {
+          id: 'an-id',
+        },
+      ];
 
       expect(() =>
         htmlTemplate({
@@ -197,9 +203,11 @@ describe('htmlTemplate', () => {
     });
 
     it('cannot overwrite interaction-prompt', () => {
-      const modelViewerArgs = {
-        'interaction-prompt': 'when-focused',
-      };
+      const modelViewerArgs = [
+        {
+          'interaction-prompt': 'when-focused',
+        },
+      ];
 
       expect(() =>
         htmlTemplate({
@@ -214,9 +222,11 @@ describe('htmlTemplate', () => {
     });
 
     it('cannot overwrite style', () => {
-      const modelViewerArgs = {
-        style: 'color: #FF00FF',
-      };
+      const modelViewerArgs = [
+        {
+          style: 'color: #FF00FF',
+        },
+      ];
 
       expect(() =>
         htmlTemplate({

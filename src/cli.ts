@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 
-import path from 'path';
 import yargs from 'yargs/yargs';
 
 import {FileServer} from './file-server';
 import {FileHandler} from './file-handler';
 import {prepareAppOptions} from './prepare-app-options';
-import {captureScreenshot} from './capture-screenshot';
+import {captureScreenshots} from './capture-screenshot';
 import {
   DEFAULT_WIDTH,
   DEFAULT_HEIGHT,
@@ -94,8 +93,10 @@ const argv = yargs(process.argv.slice(2)).options({
   model_viewer_attributes: {
     type: 'string',
     alias: 'm',
+    array: true,
     describe:
-      'Set <model-viewer> attributes by passing them as url params eg. exposure=2&environment-image=neutral',
+      'Set <model-viewer> attributes by passing them as url params eg. exposure=2&environment-image=neutral\n' +
+      'Can be specified more than once to produce serially named outputs.',
   },
 }).argv;
 
@@ -131,7 +132,7 @@ const argv = yargs(process.argv.slice(2)).options({
   }
 
   try {
-    await captureScreenshot(options);
+    await captureScreenshots(options);
   } catch (err) {
     logUnhandledError(err);
     processStatus = 1;

@@ -1,5 +1,5 @@
 import puppeteer, {Browser, Page} from 'puppeteer';
-import {captureScreenshot} from './capture-screenshot';
+import {captureScreenshots} from './capture-screenshot';
 import {htmlTemplate} from './html-template';
 import {performance} from 'perf_hooks';
 
@@ -81,7 +81,7 @@ describe('captureScreenshot', () => {
   });
 
   test('calls with correct args', async () => {
-    await captureScreenshot({
+    await captureScreenshots({
       ...defaultParams,
     });
 
@@ -89,6 +89,7 @@ describe('captureScreenshot', () => {
       args: [
         '--no-sandbox',
         '--disable-gpu',
+        '--enable-unsafe-swiftshader',
         '--disable-dev-shm-usage',
         '--disable-setuid-sandbox',
         '--no-zygote',
@@ -104,7 +105,7 @@ describe('captureScreenshot', () => {
   });
 
   test('calls with correct args in debug', async () => {
-    await captureScreenshot({
+    await captureScreenshots({
       ...defaultParams,
       debug: true,
     });
@@ -113,6 +114,7 @@ describe('captureScreenshot', () => {
       args: [
         '--no-sandbox',
         '--disable-gpu',
+        '--enable-unsafe-swiftshader',
         '--disable-dev-shm-usage',
         '--disable-setuid-sandbox',
         '--no-zygote',
@@ -128,7 +130,7 @@ describe('captureScreenshot', () => {
   });
 
   test('calls setContent', async () => {
-    await captureScreenshot({
+    await captureScreenshots({
       ...defaultParams,
     });
 
@@ -141,11 +143,11 @@ describe('captureScreenshot', () => {
     const expectedLogs = [
       '🚀  Launched browser (0.00s)',
       '🗺  Loading template to DOMContentLoaded (0.00s)',
-      '🖌  Rendering screenshot of model (0.00s)',
-      '🖼  Captured screenshot (0.00s)',
+      '🖌  Rendering screenshot(s) of model (0.00s)',
+      '🖼  Captured some/image.jpeg (0.00s)',
     ];
 
-    await captureScreenshot({
+    await captureScreenshots({
       ...defaultParams,
     });
 
@@ -160,13 +162,13 @@ describe('captureScreenshot', () => {
     const expectedLogs = [
       '🚀  Launched browser (0.00s)',
       '🗺  Loading template to DOMContentLoaded (0.00s)',
-      '🖌  Rendering screenshot of model (0.00s)',
+      '🖌  Rendering screenshot(s) of model (0.00s)',
       `❌  Evaluate error: ${error}`,
     ];
 
     mockPage.evaluate.mockResolvedValue(error);
 
-    await captureScreenshot({
+    await captureScreenshots({
       ...defaultParams,
     });
 
@@ -180,7 +182,7 @@ describe('captureScreenshot', () => {
   });
 
   test('adds correct listeners to page', async () => {
-    await captureScreenshot({
+    await captureScreenshots({
       ...defaultParams,
     });
 
@@ -200,7 +202,7 @@ describe('captureScreenshot', () => {
       },
     );
 
-    await captureScreenshot({
+    await captureScreenshots({
       ...defaultParams,
     });
 

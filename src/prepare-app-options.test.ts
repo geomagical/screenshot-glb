@@ -115,15 +115,17 @@ test('copies glb to server folder', async () => {
 
 test('handles model viewer attributes', async () => {
   const argv = getArgv({
-    model_viewer_attributes: 'exposure=10&camera-orbit=45deg 55deg 2.5m',
+    model_viewer_attributes: ['exposure=10&camera-orbit=45deg 55deg 2.5m'],
   });
   await expect(prepareAppOptions({...defaultArgs, argv})).resolves.toEqual({
     ...defaultPreparedOptions,
     inputPath: 'http://localhost:8081/some_model.glb',
-    modelViewerArgs: {
-      'camera-orbit': '45deg 55deg 2.5m',
-      exposure: '10',
-    },
+    modelViewerArgs: [
+      {
+        'camera-orbit': '45deg 55deg 2.5m',
+        exposure: '10',
+      },
+    ],
   });
 });
 

@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
 import {performance} from 'perf_hooks';
-import {htmlTemplate, TemplateRenderOptions} from './html-template';
+import {htmlTemplate} from './html-template';
 import {CaptureScreenShotOptions} from './types/CaptureScreenshotOptions';
 import {logError} from './log-error';
 
@@ -8,7 +8,7 @@ const timeDelta = (start, end) => {
   return ((end - start) / 1000).toPrecision(3);
 };
 
-export async function captureScreenshot(options: CaptureScreenShotOptions) {
+export async function captureScreenshots(options: CaptureScreenShotOptions) {
   const browserT0 = performance.now();
   const {
     modelViewerUrl,
@@ -20,6 +20,7 @@ export async function captureScreenshot(options: CaptureScreenShotOptions) {
     timeout,
     devicePixelRatio,
     formatExtension,
+    modelViewerArgs,
   } = options;
   const screenshotTimeoutInSec = timeout / 1000;
 
@@ -27,6 +28,7 @@ export async function captureScreenshot(options: CaptureScreenShotOptions) {
   const args = [
     '--no-sandbox',
     '--disable-gpu',
+    '--enable-unsafe-swiftshader',
     '--disable-dev-shm-usage',
     '--disable-setuid-sandbox',
     '--no-zygote',
@@ -128,7 +130,7 @@ export async function captureScreenshot(options: CaptureScreenShotOptions) {
 
   const renderT1 = performance.now();
   console.log(
-    `🖌  Rendering screenshot of model (${timeDelta(renderT0, renderT1)}s)`,
+    `🖌  Rendering screenshot(s) of model (${timeDelta(renderT0, renderT1)}s)`,
   );
 
   if (evaluateError) {
@@ -136,8 +138,6 @@ export async function captureScreenshot(options: CaptureScreenShotOptions) {
     await browser.close();
     return;
   }
-
-  const screenshotT0 = performance.now();
 
   const captureOptions = {
     quality: quality * 100.0,
@@ -150,15 +150,68 @@ export async function captureScreenshot(options: CaptureScreenShotOptions) {
     delete captureOptions.quality;
   }
 
-  const screenshot = await page.screenshot(captureOptions);
+  const effectiveModelViewerArgs = modelViewerArgs || [{}];
 
-  const screenshotT1 = performance.now();
+  // for every set of modelViewer args render and screenshot
+  for (const [index, mvArgs] of effectiveModelViewerArgs.entries()) {
+    // the initial page load is done with model viewer attribute set 0
+    // for all subsequent screenshots update the attributes
+    if (index > 0) {
+      const updateArgsT0 = performance.now();
 
-  console.log(
-    `🖼  Captured screenshot (${timeDelta(screenshotT0, screenshotT1)}s)`,
-  );
+      await page.evaluate(
+        async (oldArgs: {}, newArgs: {}) => {
+          const modelViewer = document.getElementById('snapshot-viewer');
+          // CLI specified attributes are not allowed to overlap
+          // the required ones set up in the generated html.
+          // this is validated in html-template.ts.
+          // that means the following pair of operations is safe.
+          for (let key in oldArgs) {
+            // out with the old
+            modelViewer.removeAttribute(key);
+          }
+          for (let key in newArgs) {
+            // in with the new
+            modelViewer.setAttribute(key, newArgs[key]);
+          }
+        },
+        modelViewerArgs[index - 1],
+        mvArgs,
+      );
+
+      const updateArgsT1 = performance.now();
+
+      console.log(
+        `🖌  update viewer args (${timeDelta(updateArgsT0, updateArgsT1)}s)`,
+      );
+    }
+
+    // when there will be multiple screenshots apply a serial
+    // naming convention to the output path
+    if (effectiveModelViewerArgs.length > 1) {
+      let index_str = String(index).padStart(2, '0');
+      let op = outputPath.split('.');
+      op[op.length - 2] += `_${index_str}`;
+      let serialOutputPath = op.join('.');
+      captureOptions.path = serialOutputPath as
+        | `${string}.jpeg`
+        | `${string}.png`
+        | `${string}.webp`;
+    }
+
+    const screenshotT0 = performance.now();
+
+    await page.screenshot(captureOptions);
+
+    const screenshotT1 = performance.now();
+
+    console.log(
+      `🖼  Captured ${captureOptions.path} (${timeDelta(
+        screenshotT0,
+        screenshotT1,
+      )}s)`,
+    );
+  }
 
   await browser.close();
-
-  return screenshot;
 }

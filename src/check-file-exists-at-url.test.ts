@@ -12,6 +12,13 @@ describe('checkFileExistsAtUrl', () => {
 
   afterEach(jest.clearAllMocks);
 
+  // need to terminate shared client session
+  // after tests or the live file exists tests below
+  // will hang after succeeding.
+  afterAll(() => {
+    https.globalAgent.destroy();
+  });
+
   it('should find the file', async () => {
     await expect(checkFileExistsAtUrl(urlExists)).resolves.toEqual(true);
   });

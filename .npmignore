@@ -1,7 +1,9 @@
 src
 test
 .dev
+.idea
 .shadowenv.d
 .gitignore
+.vscode
 railgun.yml
 tsconfig.json
