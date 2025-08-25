@@ -64,14 +64,14 @@ export async function prepareAppOptions({
   let modelViewerArgs: {[key: string]: string}[] = undefined;
 
   if (model_viewer_attributes) {
-    modelViewerArgs = []
+    modelViewerArgs = [];
     for (const attrs of model_viewer_attributes) {
-        let args: {[key: string]: string} = {}
-        const params = new URLSearchParams(attrs);
-        params.forEach((value, key) => {
-            args[key] = value;
-        });
-        modelViewerArgs.push(args);
+      let args: {[key: string]: string} = {};
+      const params = new URLSearchParams(attrs);
+      params.forEach((value, key) => {
+        args[key] = value;
+      });
+      modelViewerArgs.push(args);
     }
   }
 

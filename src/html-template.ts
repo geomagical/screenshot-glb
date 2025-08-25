@@ -70,7 +70,9 @@ export function htmlTemplate({
   validateCustomAttributes(defaultAttributes, modelViewerArgs);
 
   const defaultAttributesString = toHTMLAttributeString(defaultAttributes);
-  const customAttributesString = toHTMLAttributeString(modelViewerArgs ?  modelViewerArgs[0] : undefined);
+  const customAttributesString = toHTMLAttributeString(
+    modelViewerArgs ? modelViewerArgs[0] : undefined,
+  );
 
   return `
     <!DOCTYPE html>
