@@ -44,7 +44,6 @@ const createFileServer = (mountDirectory) => {
 };
 
 export class FileServer {
-  static PORT: number = 8384
   port: number;
   mountDirectory: string;
   private server: http.Server;
@@ -58,7 +57,7 @@ export class FileServer {
     const server = createFileServer(this.mountDirectory);
 
     return new Promise<number>((resolve) => {
-      server.listen(FileServer.PORT, () => {
+      server.listen(0, () => {
         resolve((server.address() as AddressInfo).port);
       });
     }).then((port) => {

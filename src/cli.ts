@@ -107,23 +107,23 @@ const argv = yargs(process.argv.slice(2)).options({
     process.exit(processStatus);
   }
 
-  let localServer : FileServer;
+  // serve entire directory instead of using file handler
+  // to server out of temp directory and copy one glb file.
+  // allows for exploded GLTFs to be handled and saves file copying.
+  // NOTE: this is less suitable for general public use.
+  // it is an optimization for geomagical's use case.
+  const localServer = new FileServer(path.dirname(argv.input));
+  await localServer.start();
+
   let options: CaptureScreenShotOptions;
   let processStatus = 0;
 
   try {
     options = await prepareAppOptions({
-      localServerPort: FileServer.PORT,
+      localServerPort: localServer.port,
       fileHandler: undefined,
       argv,
     });
-    // serve entire directory instead of using file handler
-    // to server out of temp directory and copy one glb file.
-    // allows for exploded GLTFs to be handled and saves file copying.
-    // NOTE: this is less suitable for general public use.
-    // it is an optimization for geomagical's use case.
-    localServer = new FileServer(path.dirname(argv.input));
-    await localServer.start();
   } catch (error) {
     logError(error);
     processStatus = 1;
