@@ -4,7 +4,7 @@ import path from 'path';
 import {AddressInfo} from 'net';
 
 const createFileServer = (mountDirectory) => {
-  return http.createServer( (request, response) => {
+  return http.createServer((request, response) => {
     const filePath = path.join(mountDirectory, request.url);
     const extname = String(path.extname(filePath)).toLowerCase();
     const mimeTypes = {
