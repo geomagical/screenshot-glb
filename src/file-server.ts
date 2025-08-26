@@ -8,8 +8,14 @@ const createFileServer = (mountDirectory) => {
     const filePath = path.join(mountDirectory, request.url);
     const extname = String(path.extname(filePath)).toLowerCase();
     const mimeTypes = {
-      '.glb': 'application/gltf-binary',
+      '.glb': 'model/gltf-binary',
+      '.gltf': 'model/gltf+json',
+      '.jpeg': 'image/jpeg',
+      '.jpg': 'image/jpeg',
       '.js': 'application/javascript',
+      '.json': 'application/json',
+      '.png': 'image/png',
+      '.webp': 'image/webp',
     };
 
     const contentType = mimeTypes[extname] || 'application/octet-stream';

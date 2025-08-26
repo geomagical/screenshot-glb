@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="multiple ss for gltf" type="NodeJSConfigurationType" application-parameters="-i ./test/fixtures/WaterBottle/WaterBottle.gltf -o ./test/waterbottle.png -m camera-orbit=0deg%2075deg%20105%25 -m camera-orbit=30deg%2075deg%20105%25 -m camera-orbit=30deg%2060deg%20105%25" path-to-js-file="src/cli.ts" typescript-loader="bundled" working-dir="$PROJECT_DIR$">
+    <method v="2" />
+  </configuration>
+</component>

@@ -49,7 +49,7 @@ export async function prepareAppOptions({
     model_viewer_version: modelViewerVersion,
     model_viewer_path: modelViewerPath,
   } = argv;
-  const model3dFileName = await fileHandler.addFile(input);
+  const model3dFileName = path.basename(input);
   const inputPath = getLocalUrl({
     port: localServerPort,
     fileName: model3dFileName,
