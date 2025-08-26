@@ -17,12 +17,13 @@ import {
 } from './defaults';
 import {logError, logUnhandledError} from './log-error';
 import {CaptureScreenShotOptions} from './types/CaptureScreenshotOptions';
+import path from 'path';
 
 const argv = yargs(process.argv.slice(2)).options({
   input: {
     type: 'string',
     alias: 'i',
-    describe: 'Input glTF 2.0 binary (GLB) filepath',
+    describe: 'Input glTF 2.0 ascii (GLTF) or binary (GLB) filepath',
     demandOption: true,
   },
   output: {
@@ -103,24 +104,26 @@ const argv = yargs(process.argv.slice(2)).options({
 (async () => {
   async function closeProgram() {
     await localServer.stop();
-    await fileHandler.destroy();
-
     process.exit(processStatus);
   }
 
-  const fileHandler = new FileHandler();
-  const localServer = new FileServer(fileHandler.fileDirectory);
+  let localServer : FileServer;
   let options: CaptureScreenShotOptions;
   let processStatus = 0;
 
-  await localServer.start();
-
   try {
     options = await prepareAppOptions({
-      localServerPort: localServer.port,
-      fileHandler,
+      localServerPort: FileServer.PORT,
+      fileHandler: undefined,
       argv,
     });
+    // serve entire directory instead of using file handler
+    // to server out of temp directory and copy one glb file.
+    // allows for exploded GLTFs to be handled and saves file copying.
+    // NOTE: this is less suitable for general public use.
+    // it is an optimization for geomagical's use case.
+    localServer = new FileServer(path.dirname(argv.input));
+    await localServer.start();
   } catch (error) {
     logError(error);
     processStatus = 1;

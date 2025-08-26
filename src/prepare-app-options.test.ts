@@ -1,7 +1,7 @@
 import {prepareAppOptions, PrepareAppOptionsArgs} from './prepare-app-options';
 import {CaptureScreenShotOptions} from './types/CaptureScreenshotOptions';
 import {checkFileExistsAtUrl} from './check-file-exists-at-url';
-import {copyFile} from 'fs';
+// import {copyFile} from 'fs';
 import {FileHandler} from './file-handler';
 
 jest.mock('./check-file-exists-at-url');
@@ -105,6 +105,10 @@ test('handles jpg with color override', async () => {
   });
 });
 
+// eliminate test - file serving is done out of the
+// input file's directory directly, not from a temp
+// directory with a single copied file
+/*
 test('copies glb to server folder', async () => {
   const argv = getArgv();
   await expect(prepareAppOptions({...defaultArgs, argv}));
@@ -112,6 +116,7 @@ test('copies glb to server folder', async () => {
   expect(fileHandler.addFile).toBeCalledTimes(1);
   expect(fileHandler.addFile).toHaveBeenCalledWith(argv.input);
 });
+*/
 
 test('handles model viewer attributes', async () => {
   const argv = getArgv({
@@ -169,6 +174,10 @@ test('errors if local model viewer path + version are passed', async () => {
   );
 });
 
+// eliminate test - file serving is done out of the
+// input file's directory directly, not from a temp
+// directory with a single copied file
+/*
 test('handles local model viewer path for model viewer', async () => {
   const modelViewerPath = './model-viewer.js';
   const argv = getArgv({
@@ -185,3 +194,4 @@ test('handles local model viewer path for model viewer', async () => {
   expect(fileHandler.addFile).toHaveBeenCalledWith(argv.input);
   expect(fileHandler.addFile).toHaveBeenCalledWith(modelViewerPath);
 });
+ */
