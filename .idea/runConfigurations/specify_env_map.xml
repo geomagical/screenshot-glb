@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="specify env map" type="NodeJSConfigurationType" application-parameters="-i $PROJECT_DIR$/test/fixtures/Astronaut.glb -o $PROJECT_DIR$/test/Astronaut.png -c #ffffff -m environment-image=environment.hdr" path-to-js-file="src/cli.ts" typescript-loader="bundled" working-dir="$PROJECT_DIR$">
+    <method v="2" />
+  </configuration>
+</component>

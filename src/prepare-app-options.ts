@@ -69,7 +69,12 @@ export async function prepareAppOptions({
       let args: {[key: string]: string} = {};
       const params = new URLSearchParams(attrs);
       params.forEach((value, key) => {
-        if (key == 'environment-image' || key == 'skybox-image') {
+        // if value has an extension convert to url.
+        // otherwise do not.
+        if (
+          (key == 'environment-image' || key == 'skybox-image') &&
+          value.includes('.')
+        ) {
           args[key] = getLocalUrl({
             port: localServerPort,
             fileName: value,
