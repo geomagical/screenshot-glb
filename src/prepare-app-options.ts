@@ -71,7 +71,7 @@ export async function prepareAppOptions({
       params.forEach((value, key) => {
         // if value has an extension convert to url.
         // otherwise do not.
-        if (key == 'environment-image' || key == 'skybox-image' && value.includes(".")) {
+        if ((key == 'environment-image' || key == 'skybox-image') && value.includes(".")) {
           args[key] = getLocalUrl({
             port: localServerPort,
             fileName: value,
