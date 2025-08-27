@@ -69,7 +69,14 @@ export async function prepareAppOptions({
       let args: {[key: string]: string} = {};
       const params = new URLSearchParams(attrs);
       params.forEach((value, key) => {
-        args[key] = value;
+        if (key == 'environment-image' || key == 'skybox-image') {
+          args[key] = getLocalUrl({
+            port: localServerPort,
+            fileName: value,
+          });
+        } else {
+          args[key] = value;
+        }
       });
       modelViewerArgs.push(args);
     }
@@ -84,8 +91,8 @@ export async function prepareAppOptions({
   let modelViewerUrl: string = getModelViewerUrl(modelViewerVersion);
 
   if (modelViewerPath) {
-    const modelViewerFileName = await fileHandler.addFile(modelViewerPath);
-
+    // const modelViewerFileName = await fileHandler.addFile(modelViewerPath);
+    const modelViewerFileName = path.basename(modelViewerPath);
     modelViewerUrl = getLocalUrl({
       port: localServerPort,
       fileName: modelViewerFileName,
