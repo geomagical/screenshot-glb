@@ -64,6 +64,7 @@ export function htmlTemplate({
     id: 'snapshot-viewer',
     style: `background-color: ${backgroundColor};`,
     'interaction-prompt': 'none',
+    'interpolation-decay': 0,
     src: inputPath,
   };
 
