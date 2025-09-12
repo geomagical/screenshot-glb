@@ -40,7 +40,7 @@ export async function captureScreenshots(options: CaptureScreenShotOptions) {
     args.push('--start-maximized');
   }
 
-  let browser: Browser
+  let browser: Browser;
 
   try {
     browser = await puppeteer.launch({
@@ -215,11 +215,9 @@ export async function captureScreenshots(options: CaptureScreenShotOptions) {
         )}s)`,
       );
     }
-  }
-  catch(err) {
+  } catch (err) {
     logUnhandledError(err);
-  }
-  finally {
+  } finally {
     if (browser) {
       await browser.close();
     }
