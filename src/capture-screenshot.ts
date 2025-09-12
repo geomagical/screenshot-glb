@@ -1,8 +1,8 @@
-import puppeteer from 'puppeteer';
+import puppeteer, {Browser} from 'puppeteer';
 import {performance} from 'perf_hooks';
 import {htmlTemplate} from './html-template';
 import {CaptureScreenShotOptions} from './types/CaptureScreenshotOptions';
-import {logError} from './log-error';
+import {logError, logUnhandledError} from './log-error';
 
 const timeDelta = (start, end) => {
   return ((end - start) / 1000).toPrecision(3);
@@ -40,178 +40,186 @@ export async function captureScreenshots(options: CaptureScreenShotOptions) {
     args.push('--start-maximized');
   }
 
-  const browser = await puppeteer.launch({
-    args,
-    defaultViewport: {
-      width,
-      height,
-      deviceScaleFactor: devicePixelRatio,
-    },
-    headless,
-  });
+  let browser: Browser;
 
-  const page = await browser.newPage();
-
-  page.on('error', (error) => {
-    console.log(`🚨  Page Error: ${error}`);
-  });
-
-  page.on('console', async (message) => {
-    const args = await Promise.all(
-      message.args().map((arg) => arg.jsonValue()),
-    );
-
-    if (args.length) {
-      console.log(`➡️`, ...args);
-    }
-  });
-
-  const browserT1 = performance.now();
-
-  console.log(`🚀  Launched browser (${timeDelta(browserT0, browserT1)}s)`);
-
-  const contentT0 = performance.now();
-
-  const data = htmlTemplate({...options, modelViewerUrl});
-  await page.setContent(data, {
-    waitUntil: ['domcontentloaded', 'networkidle0'],
-  });
-
-  const contentT1 = performance.now();
-
-  console.log(
-    `🗺  Loading template to DOMContentLoaded (${timeDelta(
-      contentT0,
-      contentT1,
-    )}s)`,
-  );
-
-  const renderT0 = performance.now();
-
-  const evaluateError = await page.evaluate(async (maxTimeInSec) => {
-    const modelBecomesReady = new Promise<void>((resolve, reject) => {
-      let timeout;
-      if (maxTimeInSec > 0) {
-        timeout = setTimeout(() => {
-          reject(
-            new Error(
-              `Stop capturing screenshot after ${maxTimeInSec} seconds`,
-            ),
-          );
-        }, maxTimeInSec * 1000);
-      }
-
-      const modelViewer = document.getElementById('snapshot-viewer');
-      modelViewer.addEventListener(
-        'poster-dismissed',
-        () => {
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                if (maxTimeInSec > 0) {
-                  clearTimeout(timeout);
-                }
-                resolve();
-              });
-            });
-          });
-        },
-        {once: true},
-      );
+  try {
+    browser = await puppeteer.launch({
+      args,
+      defaultViewport: {
+        width,
+        height,
+        deviceScaleFactor: devicePixelRatio,
+      },
+      headless,
     });
 
-    try {
-      await modelBecomesReady;
-      return null;
-    } catch (error) {
-      return error.message;
-    }
-  }, screenshotTimeoutInSec);
+    const page = await browser.newPage();
 
-  const renderT1 = performance.now();
-  console.log(
-    `🖌  Rendering screenshot(s) of model (${timeDelta(renderT0, renderT1)}s)`,
-  );
+    page.on('error', (error) => {
+      console.log(`🚨  Page Error: ${error}`);
+    });
 
-  if (evaluateError) {
-    logError(`Evaluate error: ${evaluateError}`);
-    await browser.close();
-    return;
-  }
-
-  const captureOptions = {
-    quality: quality * 100.0,
-    type: formatExtension as 'jpeg' | 'png' | 'webp',
-    path: outputPath as `${string}.jpeg` | `${string}.png` | `${string}.webp`,
-    omitBackground: true,
-  };
-
-  if (formatExtension === 'png') {
-    delete captureOptions.quality;
-  }
-
-  const effectiveModelViewerArgs = modelViewerArgs || [{}];
-
-  // for every set of modelViewer args render and screenshot
-  for (const [index, mvArgs] of effectiveModelViewerArgs.entries()) {
-    // the initial page load is done with model viewer attribute set 0
-    // for all subsequent screenshots update the attributes
-    if (index > 0) {
-      const updateArgsT0 = performance.now();
-
-      await page.evaluate(
-        async (oldArgs: {}, newArgs: {}) => {
-          const modelViewer = document.getElementById('snapshot-viewer');
-          // CLI specified attributes are not allowed to overlap
-          // the required ones set up in the generated html.
-          // this is validated in html-template.ts.
-          // that means the following pair of operations is safe.
-          for (let key in oldArgs) {
-            // out with the old
-            modelViewer.removeAttribute(key);
-          }
-          for (let key in newArgs) {
-            // in with the new
-            modelViewer.setAttribute(key, newArgs[key]);
-          }
-        },
-        modelViewerArgs[index - 1],
-        mvArgs,
+    page.on('console', async (message) => {
+      const args = await Promise.all(
+        message.args().map((arg) => arg.jsonValue()),
       );
 
-      const updateArgsT1 = performance.now();
+      if (args.length) {
+        console.log(`➡️`, ...args);
+      }
+    });
 
-      console.log(
-        `🖌  update viewer args (${timeDelta(updateArgsT0, updateArgsT1)}s)`,
-      );
-    }
+    const browserT1 = performance.now();
 
-    // when there will be multiple screenshots apply a serial
-    // naming convention to the output path
-    if (effectiveModelViewerArgs.length > 1) {
-      let index_str = String(index).padStart(2, '0');
-      let op = outputPath.split('.');
-      op[op.length - 2] += `_${index_str}`;
-      let serialOutputPath = op.join('.');
-      captureOptions.path = serialOutputPath as
-        | `${string}.jpeg`
-        | `${string}.png`
-        | `${string}.webp`;
-    }
+    console.log(`🚀  Launched browser (${timeDelta(browserT0, browserT1)}s)`);
 
-    const screenshotT0 = performance.now();
+    const contentT0 = performance.now();
 
-    await page.screenshot(captureOptions);
+    const data = htmlTemplate({...options, modelViewerUrl});
+    await page.setContent(data, {
+      waitUntil: ['domcontentloaded', 'networkidle0'],
+    });
 
-    const screenshotT1 = performance.now();
+    const contentT1 = performance.now();
 
     console.log(
-      `🖼  Captured ${captureOptions.path} (${timeDelta(
-        screenshotT0,
-        screenshotT1,
+      `🗺  Loading template to DOMContentLoaded (${timeDelta(
+        contentT0,
+        contentT1,
       )}s)`,
     );
-  }
 
-  await browser.close();
+    const renderT0 = performance.now();
+
+    const evaluateError = await page.evaluate(async (maxTimeInSec) => {
+      const modelBecomesReady = new Promise<void>((resolve, reject) => {
+        let timeout;
+        if (maxTimeInSec > 0) {
+          timeout = setTimeout(() => {
+            reject(
+              new Error(
+                `Stop capturing screenshot after ${maxTimeInSec} seconds`,
+              ),
+            );
+          }, maxTimeInSec * 1000);
+        }
+
+        const modelViewer = document.getElementById('snapshot-viewer');
+        modelViewer.addEventListener(
+          'poster-dismissed',
+          () => {
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  if (maxTimeInSec > 0) {
+                    clearTimeout(timeout);
+                  }
+                  resolve();
+                });
+              });
+            });
+          },
+          {once: true},
+        );
+      });
+
+      try {
+        await modelBecomesReady;
+        return null;
+      } catch (error) {
+        return error.message;
+      }
+    }, screenshotTimeoutInSec);
+
+    const renderT1 = performance.now();
+    console.log(
+      `🖌  Rendering screenshot(s) of model (${timeDelta(renderT0, renderT1)}s)`,
+    );
+
+    if (evaluateError) {
+      logError(`Evaluate error: ${evaluateError}`);
+      await browser.close();
+      return;
+    }
+
+    const captureOptions = {
+      quality: quality * 100.0,
+      type: formatExtension as 'jpeg' | 'png' | 'webp',
+      path: outputPath as `${string}.jpeg` | `${string}.png` | `${string}.webp`,
+      omitBackground: true,
+    };
+
+    if (formatExtension === 'png') {
+      delete captureOptions.quality;
+    }
+
+    const effectiveModelViewerArgs = modelViewerArgs || [{}];
+
+    // for every set of modelViewer args render and screenshot
+    for (const [index, mvArgs] of effectiveModelViewerArgs.entries()) {
+      // the initial page load is done with model viewer attribute set 0
+      // for all subsequent screenshots update the attributes
+      if (index > 0) {
+        const updateArgsT0 = performance.now();
+
+        await page.evaluate(
+          async (oldArgs: {}, newArgs: {}) => {
+            const modelViewer = document.getElementById('snapshot-viewer');
+            // CLI specified attributes are not allowed to overlap
+            // the required ones set up in the generated html.
+            // this is validated in html-template.ts.
+            // that means the following pair of operations is safe.
+            for (let key in oldArgs) {
+              // out with the old
+              modelViewer.removeAttribute(key);
+            }
+            for (let key in newArgs) {
+              // in with the new
+              modelViewer.setAttribute(key, newArgs[key]);
+            }
+          },
+          modelViewerArgs[index - 1],
+          mvArgs,
+        );
+
+        const updateArgsT1 = performance.now();
+
+        console.log(
+          `🖌  update viewer args (${timeDelta(updateArgsT0, updateArgsT1)}s)`,
+        );
+      }
+
+      // when there will be multiple screenshots apply a serial
+      // naming convention to the output path
+      if (effectiveModelViewerArgs.length > 1) {
+        let index_str = String(index).padStart(2, '0');
+        let op = outputPath.split('.');
+        op[op.length - 2] += `_${index_str}`;
+        let serialOutputPath = op.join('.');
+        captureOptions.path = serialOutputPath as
+          | `${string}.jpeg`
+          | `${string}.png`
+          | `${string}.webp`;
+      }
+
+      const screenshotT0 = performance.now();
+
+      await page.screenshot(captureOptions);
+
+      const screenshotT1 = performance.now();
+
+      console.log(
+        `🖼  Captured ${captureOptions.path} (${timeDelta(
+          screenshotT0,
+          screenshotT1,
+        )}s)`,
+      );
+    }
+  } catch (err) {
+    logUnhandledError(err);
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
 }
