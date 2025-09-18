@@ -56,7 +56,7 @@ export class FileServer {
   }
 
   async start(port: number) {
-    const server  = createFileServer(this.mountDirectory);
+    const server = createFileServer(this.mountDirectory);
 
     if (port != 0) {
       console.log(`Server listening at cli-specified port ${port}`);
