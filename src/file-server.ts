@@ -55,11 +55,15 @@ export class FileServer {
     this.server = null;
   }
 
-  async start() {
-    const server = createFileServer(this.mountDirectory);
+  async start(port: number) {
+    const server  = createFileServer(this.mountDirectory);
+
+    if (port != 0) {
+      console.log(`Server listening at cli-specified port ${port}`);
+    }
 
     return new Promise<number>((resolve) => {
-      server.listen(0, () => {
+      server.listen(port, () => {
         resolve((server.address() as AddressInfo).port);
       });
     }).then((port) => {
