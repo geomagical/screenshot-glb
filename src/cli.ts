@@ -68,6 +68,11 @@ const argv_promise = yargs(process.argv.slice(2))
       describe: 'Timeout length in milliseconds',
       default: DEFAULT_TIMEOUT_MILLISECONDS,
     },
+    server_port: {
+      type: 'number',
+      describe: 'local_http_server_port. 0 = autoselect (defaults to 0)',
+      default: 0,
+    },
     debug: {
       type: 'boolean',
       alias: 'd',
@@ -119,7 +124,7 @@ const argv_promise = yargs(process.argv.slice(2))
   let options: CaptureScreenShotOptions;
   let processStatus = 0;
 
-  await localServer.start();
+  await localServer.start(argv.server_port);
 
   try {
     options = await prepareAppOptions({
